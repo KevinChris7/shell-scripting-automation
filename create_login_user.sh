@@ -10,7 +10,6 @@ then
     # Getting USER Inputs for creation
     read -p 'Enter the username to create: ' CREATEUSER
     read -p 'Enter the user description: ' USERROLE
-    read -p 'Enter the password: ' PASSWORD
 
     # Creating the useraccount
     useradd -c "${USERROLE}" -m "${CREATEUSER}"
@@ -19,6 +18,16 @@ then
         echo ' User Account already Exists '
         exit 1
     fi
+
+    # Generating more secured one time password
+    # date command with %s and %N generates APAC time with Nano seconds
+    # Hash function is applied by sha256sum
+    # head gives the content and the number of character using -c option
+    # shuf is for shuffling the characters
+    temp1="$(date +%s%N{RANDOM} | sha256sum | head -c32)"
+    temp2="$(echo '!@#$%^&*' | shuf | head -c1)"
+    PASSWORD="${temp1}${temp2}"
+
 
     # Setting the Password
     echo -e "${PASSWORD}\n${PASSWORD}" | passwd ${CREATEUSER}
