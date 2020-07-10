@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # Creates new login accounts for users
+# You must specify the USERNAME as an argument to script
+# Optionally you can specify the USERROLE or description as an additional argument
 
 USERNAME=$(id -un)
 HOSTNAME=$(hostname)
@@ -8,8 +10,20 @@ HOSTNAME=$(hostname)
 if [[ "${USERNAME}" = root ]];
 then
     # Getting USER Inputs for creation
-    read -p 'Enter the username to create: ' CREATEUSER
-    read -p 'Enter the user description: ' USERROLE
+    INPUTS="${#}"
+    CREATEUSER="${1}"
+
+    # SHIFT command neglects the first argenument and takes the rest
+    shift
+    USERROLE="${@}"
+
+    # Checking whether required argument is given
+    echo "You have given request for ${INPUTS} arguments"
+    if [[ ${INPUTS} -lt 1 ]];
+    then
+        echo "Usage: ${0} UserName [UserRole]..."
+        exit 1
+    fi
 
     # Creating the useraccount
     useradd -c "${USERROLE}" -m "${CREATEUSER}"
@@ -27,9 +41,9 @@ then
     temp1="$(date +%s%N{RANDOM} | sha256sum | head -c32)"
     temp2="$(echo '!@#$%^&*' | shuf | head -c1)"
     PASSWORD="${temp1}${temp2}"
+    #echo "${CREATEUSER}:${PASSWORD}"
 
-
-    # Setting the Password
+    # Setting the Password and checking the result of it
     echo -e "${PASSWORD}\n${PASSWORD}" | passwd ${CREATEUSER}
     if [[ "${?}" -ne 0 ]];
     then
@@ -43,9 +57,11 @@ then
     # Display the User Creation Result
     if [[ "${?}" -eq 0 ]];
     then
+        echo
         echo 'User Account is successfully created'
         echo '----Account Details----'
         echo "Username : ${CREATEUSER}"
+        echo "UserRole : ${USERROLE}"
         echo "Password : ${PASSWORD}"
         echo "Hostname : ${HOSTNAME}"
     else
@@ -53,9 +69,8 @@ then
         exit 1
     fi
 else
-    echo "${USERNAME}Need to Login with Root User or Sudo for Account creation" 
+    echo "${USERNAME} need to Login with Root User or Sudo for Account creation" 
     exit 1  
 fi
 
 exit 0
-
