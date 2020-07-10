@@ -6,6 +6,9 @@
 
 USERNAME=$(id -un)
 HOSTNAME=$(hostname)
+OUTPUT_FILE=/tmp/file.out
+ERR_FILE=/tmp/file.err
+
 
 if [[ "${USERNAME}" = root ]];
 then
@@ -13,15 +16,15 @@ then
     INPUTS="${#}"
     CREATEUSER="${1}"
 
-    # SHIFT command neglects the first argenument and takes the rest
+    # SHIFT command neglects the first argument and takes the rest
     shift
     USERROLE="${@}"
 
     # Checking whether required argument is given
-    echo "You have given request for ${INPUTS} arguments"
+    echo "You have given request for ${INPUTS} arguments" 1>&2 /dev/null
     if [[ ${INPUTS} -lt 1 ]];
     then
-        echo "Usage: ${0} UserName [UserRole]..."
+        echo "Usage: ${0} USERNAME [USERROLE]..." 2> ${ERR_FILE}
         exit 1
     fi
 
@@ -29,7 +32,7 @@ then
     useradd -c "${USERROLE}" -m "${CREATEUSER}"
     if [[ "${?}" -ne 0 ]];
     then
-        echo ' User Account already Exists '
+        echo ' User Account already Exists ' 2>  ${ERR_FILE}
         exit 1
     fi
 
@@ -44,15 +47,15 @@ then
     #echo "${CREATEUSER}:${PASSWORD}"
 
     # Setting the Password and checking the result of it
-    echo -e "${PASSWORD}\n${PASSWORD}" | passwd ${CREATEUSER}
+    echo -e "${PASSWORD}\n${PASSWORD}" | passwd ${CREATEUSER} | 1>&2 /dev/null
     if [[ "${?}" -ne 0 ]];
     then
-        echo ' Password Set Failed '
+        echo ' Password Set Failed ' 2> ${ERR_FILE}
         exit 1
     fi
 
     # Force Password change on First login
-    passwd -e ${CREATEUSER}
+    passwd -e ${CREATEUSER} 1>&2 /dev/null
 
     # Display the User Creation Result
     if [[ "${?}" -eq 0 ]];
@@ -66,7 +69,7 @@ then
         echo "Hostname : ${HOSTNAME}"
     else
         echo 'User Account Creation Failed'
-        exit 1
+        exit 1 2> ${ERR_FILE}
     fi
 else
     echo "${USERNAME} need to Login with Root User or Sudo for Account creation" 
