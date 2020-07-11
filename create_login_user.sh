@@ -21,18 +21,18 @@ then
     USERROLE="${@}"
 
     # Checking whether required argument is given
-    echo "You have given request for ${INPUTS} arguments" 1>&2 /dev/null
+    echo "You have given request for ${INPUTS} users" 1> ${ERR_FILE}
     if [[ ${INPUTS} -lt 1 ]];
     then
-        echo "Usage: ${0} USERNAME [USERROLE]..." 2> ${ERR_FILE}
+        echo "Usage: ${0} USERNAME [USERROLE]..." 1> ${ERR_FILE}
         exit 1
     fi
 
     # Creating the useraccount
-    useradd -c "${USERROLE}" -m "${CREATEUSER}"
+    useradd -c "${USERROLE}" -m "${CREATEUSER}" 2> /dev/null
     if [[ "${?}" -ne 0 ]];
     then
-        echo ' User Account already Exists ' 2>  ${ERR_FILE}
+        echo "${CREATEUSER} User Account already Exists " 1> ${ERR_FILE}
         exit 1
     fi
 
@@ -44,18 +44,17 @@ then
     temp1="$(date +%s%N{RANDOM} | sha256sum | head -c32)"
     temp2="$(echo '!@#$%^&*' | shuf | head -c1)"
     PASSWORD="${temp1}${temp2}"
-    #echo "${CREATEUSER}:${PASSWORD}"
 
     # Setting the Password and checking the result of it
-    echo -e "${PASSWORD}\n${PASSWORD}" | passwd ${CREATEUSER} | 1>&2 /dev/null
+    echo -e "${PASSWORD}\n${PASSWORD}" | passwd ${CREATEUSER} &> /dev/null
     if [[ "${?}" -ne 0 ]];
     then
-        echo ' Password Set Failed ' 2> ${ERR_FILE}
+        echo ' Password Set Failed ' 1> ${ERR_FILE} 
         exit 1
     fi
 
     # Force Password change on First login
-    passwd -e ${CREATEUSER} 1>&2 /dev/null
+    passwd -e ${CREATEUSER} &> /dev/null
 
     # Display the User Creation Result
     if [[ "${?}" -eq 0 ]];
@@ -68,8 +67,8 @@ then
         echo "Password : ${PASSWORD}"
         echo "Hostname : ${HOSTNAME}"
     else
-        echo 'User Account Creation Failed'
-        exit 1 2> ${ERR_FILE}
+        echo 'User Account Creation Failed' 1>& ${ERR_FILE}
+        exit 1 
     fi
 else
     echo "${USERNAME} need to Login with Root User or Sudo for Account creation" 
