@@ -50,10 +50,11 @@ user_backup() {
 user_delete() {
     # Deleting the User
     userdel ${USERNAME}
-
+    # Confirming the Delete operation
     if [[ "${?}" -ne 0 ]];
     then 
         echo "Delete User Failed"
+        exit 1
     fi
 }
 
@@ -96,7 +97,7 @@ then
                 user_backup
                 break;;
             *)
-                echo "Wrong Input"
+                echo 'Wrong Input'
                 exit 1
                 ;;
         esac
