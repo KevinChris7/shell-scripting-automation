@@ -13,9 +13,13 @@ LOGINUSER=$(id -un)
 username_check() {
     # Checks whether the Username for Login Name is given to proceed
     echo "I am In"
-    if [[ "${USERNAME}" -ne 0 ]];
+    if [[ "${INPUTS}" -lt 1 ]];
     then
-        echo "Usage: ${0} USERNAME [][][]"
+        echo "Usage: ${0} USER [][][]"
+        echo 'Disables the given User Account'
+        echo '-d Deletes the accounts'
+        echo '-r Removes the HOME directory'
+        echo '-a Creates the archive and compress'
         exit 1
     fi
 }
@@ -30,7 +34,7 @@ username_disable() {
         echo "${USERNAME} Account is Disabled"
     else
         echo "User ${USERNAME} does not exist"
-        exit 1
+        #exit 1
     fi
 }
 
@@ -49,14 +53,17 @@ user_backup() {
 
 user_delete() {
     # Deleting the User
-    userdel ${USERNAME}
+    if [[ "${USERID}" -gt 1000 ]];
+    then 
+        userdel ${USERNAME} 
+    else
+        echo " Cannot the Delete the user ${USERNAME} with UID ${USERID}"
+    fi
     # Confirming the Delete operation
     if [[ "${?}" -ne 0 ]];
     then 
-        echo "Delete User Failed for ${USERNAME}"
+        echo "Delete User Failed for ${USERNAME} or User ${USERNAME} does not exist"
         exit 1
-    else 
-        echo "User ${USERNAME} does not exist"
     fi
 }
 
@@ -73,9 +80,19 @@ user_disable_del() {
     fi
 }
 
+user_result() {
+    echo
+    echo '----Account Details----'
+    echo "Linux User: ${USERNAME}"
+    echo "Status: Deleted & Deactivated"
+    echo "$(date)"
+}
+
 if [[ "${LOGINUSER}" = root ]];
 then
+    INPUTS="${#}"
     USERNAME="${1}"
+    USERID=$(id -u ${USERNAME})
     echo "${USERNAME}"
     # Checking whether Username is given to delete
     username_check
@@ -117,7 +134,8 @@ then
                 exit 1
                 ;;
         esac
-    done    
+    done   
+    user_result 
 
 else
     echo "${LOGINUSER} Need to Login with Root Privileges"
