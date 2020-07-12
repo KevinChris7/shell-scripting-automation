@@ -1,21 +1,20 @@
 #!/bin/bash
 
-# Deletes the Account for Login User
-# And Optionally Archives it
+# This Script can disable,delete and archive the user account based on input
+# To Run below command format should be given
+# sudo SCRIPT_NAME USER [OPTION]
+# OPTION can be -d or -r or -a
 
 LOGINUSER=$(id -un)
-#INPUT="${#}"
-#echo "${INPUT}"
+INPUTS="${#}"
+USERNAME="${1}"
+USERID=$(id -u ${USERNAME})
 
-# USERNAME="${1}"
-# #echo "${USERNAME}"
-
-username_check() {
+user_check() {
     # Checks whether the Username for Login Name is given to proceed
-    echo "I am In"
     if [[ "${INPUTS}" -lt 1 ]];
     then
-        echo "Usage: ${0} USER [][][]"
+        echo "Usage: ${0} USER [OPTION]"
         echo 'Disables the given User Account'
         echo '-d Deletes the accounts'
         echo '-r Removes the HOME directory'
@@ -32,7 +31,7 @@ user_disable() {
     # Check to confirm the Disable
     if [[ "${?}" -eq 0 ]];
     then
-        echo "${USERNAME} Account is Disabled"
+        echo "${USERNAME} Account is Disabled" 1>/dev/null
     else
         echo "User account ${USERNAME} was not disabled"
         #exit 1
@@ -41,12 +40,12 @@ user_disable() {
 
 user_backup() {
     # Archiving the USER
-    tar -cvf ${USERNAME}.tar /home/${USERNAME}/
+    tar -cvf ${USERNAME}.tar /home/${USERNAME}/ 1>/dev/null
     
     if [[ "${?}" -eq 0 ]];
     then
         # Compress the file using gzip
-        gzip -f ${USERNAME}.tar
+        gzip -f ${USERNAME}.tar 1>/dev/null
     else
         echo "User ${USERNAME} Backup Failed"
     fi
@@ -81,24 +80,23 @@ user_disable_del() {
     else 
         echo "User ${USERNAME} does not exist"
     fi
+    echo "${USERNAME} account is deleted"    
 }
 
 user_result() {
     echo
     echo '----Account Details----'
     echo "Linux User: ${USERNAME}"
-    echo "Status: Deleted & Deactivated"
+    echo "Status: Process Completed"
     echo "$(date)"
+    echo 
 }
 
 if [[ "${LOGINUSER}" = root ]];
 then
-    INPUTS="${#}"
-    USERNAME="${1}"
-    USERID=$(id -u ${USERNAME})
-    echo "${USERNAME}"
+
     # Checking whether Username is given to delete
-    username_check
+    user_check
 
     # Disabling the Username
     if [[ "${?}" -eq 0 ]];
@@ -114,10 +112,8 @@ then
     # Then ${#} becomes values from 2nd argument
     shift
     OPTION="${#}"
-    echo "${OPTION}"
 
     while getopts dra OPTION
-    echo 'I am in While'
     do 
         case ${OPTION} in 
             d)
@@ -133,7 +129,7 @@ then
                 user_backup
                 break;;
             *)
-                echo 'Wrong Input'
+                echo 'No Option is selected for Process'
                 exit 1
                 ;;
         esac
