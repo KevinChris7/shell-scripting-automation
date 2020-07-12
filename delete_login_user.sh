@@ -4,7 +4,7 @@
 # And Optionally Archives it
 
 LOGINUSER=$(id -un)
-INPUT="${#}"
+#INPUT="${#}"
 #echo "${INPUT}"
 
 # USERNAME="${1}"
@@ -49,6 +49,34 @@ then
         echo " Username Disable Failed "
         exit 1
     fi
+
+    # Neglecting filename ${#} and first argument username ${1}
+    # After using SHIFT till ${1} will be removed
+    # Then ${#} becomes values from 2nd argument
+    shift
+    OPTION="${#}"
+    echo "${OPTION}"
+
+    while getopts dra OPTION
+    echo 'I am in While'
+    do 
+        case ${OPTION} in 
+            d)
+                echo 'User Deleted'
+                break;;
+            r)
+                echo 'Home Directory removed'
+                break;;
+            a)
+                echo 'backing up'
+                #backup function
+                break;;
+            *)
+                echo "Wrong Input"
+                exit 1
+                ;;
+        esac
+    done    
 
 else
     echo "${LOGINUSER} Need to Login with Root Privileges"
