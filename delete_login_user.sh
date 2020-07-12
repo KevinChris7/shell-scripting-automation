@@ -60,6 +60,19 @@ user_delete() {
     fi
 }
 
+user_disable_del() {
+    # Deleting the User and HOME directory
+    userdel -r ${USERNAME}
+    # Confirming the Delete operation
+    if [[ "${?}" -ne 0 ]];
+    then 
+        echo "Delete and disable User Failed for ${USERNAME}"
+        exit 1
+    else 
+        echo "User ${USERNAME} does not exist"
+    fi
+}
+
 if [[ "${LOGINUSER}" = root ]];
 then
     USERNAME="${1}"
@@ -92,7 +105,8 @@ then
                 user_delete
                 break;;
             r)
-                echo 'Home Directory removed'
+                echo 'Deleting the User ${USERNAME} and HOME directory'
+                user_disable_del
                 break;;
             a)
                 echo 'Archiving and Compressing the User Details!!!'
