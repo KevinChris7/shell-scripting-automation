@@ -43,7 +43,7 @@ user_backup() {
         # Compress the file using gzip
         gzip -f ${USERNAME}.tar
     else
-        echo "User Backup Failed"
+        echo "User ${USERNAME} Backup Failed"
     fi
 }
 
@@ -53,8 +53,10 @@ user_delete() {
     # Confirming the Delete operation
     if [[ "${?}" -ne 0 ]];
     then 
-        echo "Delete User Failed"
+        echo "Delete User Failed for ${USERNAME}"
         exit 1
+    else 
+        echo "User ${USERNAME} does not exist"
     fi
 }
 
