@@ -58,6 +58,7 @@ user_delete() {
         userdel ${USERNAME} 
     else
         echo " Cannot the Delete the user ${USERNAME} with UID ${USERID}"
+        exit 1
     fi
     # Confirming the Delete operation
     if [[ "${?}" -ne 0 ]];
