@@ -24,16 +24,17 @@ username_check() {
     fi
 }
 
-username_disable() {
+user_disable() {
     # Chage command determines the age of the password using various options
     # Option E sets the number of days from default date
     chage -E 0 ${USERNAME} 2>/etc/null
 
+    # Check to confirm the Disable
     if [[ "${?}" -eq 0 ]];
     then
         echo "${USERNAME} Account is Disabled"
     else
-        echo "User ${USERNAME} does not exist"
+        echo "User account ${USERNAME} was not disabled"
         #exit 1
     fi
 }
@@ -66,6 +67,7 @@ user_delete() {
         echo "Delete User Failed for ${USERNAME} or User ${USERNAME} does not exist"
         exit 1
     fi
+    echo "${USERNAME} account is deleted"
 }
 
 user_disable_del() {
@@ -101,9 +103,9 @@ then
     # Disabling the Username
     if [[ "${?}" -eq 0 ]];
     then
-        username_disable
+        user_disable
     else 
-        echo " Username Disable Failed "
+        echo " Username Disable not processed "
         exit 1
     fi
 
