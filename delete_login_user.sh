@@ -26,7 +26,7 @@ user_check() {
 user_disable() {
     # Chage command determines the age of the password using various options
     # Option E sets the number of days from default date
-    chage -E 0 ${USERNAME} 2>/etc/null
+    chage -E 0 ${USERNAME} 2>/dev/null
 
     # Check to confirm the Disable
     if [[ "${?}" -eq 0 ]];
@@ -42,6 +42,7 @@ user_backup() {
     # Archiving the USER
     tar -cvf ${USERNAME}.tar /home/${USERNAME}/ 1>/dev/null
     
+    # Checking to proceed for Compressing
     if [[ "${?}" -eq 0 ]];
     then
         # Compress the file using gzip
@@ -140,3 +141,5 @@ else
     echo "${LOGINUSER} Need to Login with Root Privileges"
     exit 1
 fi
+
+exit 0
