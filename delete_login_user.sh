@@ -43,7 +43,17 @@ user_backup() {
         # Compress the file using gzip
         gzip -f ${USERNAME}.tar
     else
-        echo " User Backup Failed "
+        echo "User Backup Failed"
+    fi
+}
+
+user_delete() {
+    # Deleting the User
+    userdel ${USERNAME}
+
+    if [[ "${?}" -ne 0 ]];
+    then 
+        echo "Delete User Failed"
     fi
 }
 
@@ -75,7 +85,8 @@ then
     do 
         case ${OPTION} in 
             d)
-                echo 'User Deleted'
+                echo "Deleting the User ${USERNAME}"
+                user_delete
                 break;;
             r)
                 echo 'Home Directory removed'
