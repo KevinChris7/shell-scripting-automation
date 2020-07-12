@@ -34,6 +34,19 @@ username_disable() {
     fi
 }
 
+user_backup() {
+    # Archiving the USER
+    tar -cvf ${USERNAME}.tar /home/${USERNAME}/
+    
+    if [[ "${?}" -eq 0 ]];
+    then
+        # Compress the file using gzip
+        gzip -f ${USERNAME}.tar
+    else
+        echo " User Backup Failed "
+    fi
+}
+
 if [[ "${LOGINUSER}" = root ]];
 then
     USERNAME="${1}"
@@ -68,8 +81,8 @@ then
                 echo 'Home Directory removed'
                 break;;
             a)
-                echo 'backing up'
-                #backup function
+                echo 'Archiving and Compressing the User Details!!!'
+                user_backup
                 break;;
             *)
                 echo "Wrong Input"
