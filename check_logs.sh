@@ -11,14 +11,22 @@ OUTPUT_FILE='output.csv'
 # Retrieves the IP address from the matched lines using AWK
 # Sorts the Ip address using SORT command
 # Fetches the unique Ip address with their occurrence count using UNIQ -C command
-# Checks the condition based on count using AWK
+# Count and ID are passed as inputs to WHILE loop
 # Output the details to a CSV file
 scan_log(){
 
     echo 'Scanning the Log File'  
-    grep 'Failed password' syslog-sample2 | awk '{print $11}' | sort -n | uniq -c |
-    #awk 'ip=$2 { if ($1 >= 1) print $1 " " $2 " " system("geoiplookup " ip);}' > output.csv |
-    awk 'BEGIN{print "COUNT""\tIP""\tLOCATION"}; ip=$2{ if ($1 >= 1) print $1 " " $2 " " system("geoiplookup " ip);}' > ${OUTPUT_FILE}
+    echo 'COUNT,IP,LOCATION' > ${OUTPUT_FILE}
+    grep 'Failed password' syslog-sample | awk '{print $(NF -3)}' | sort -n | uniq -c | sort -r |
+    #awk 'BEGIN{print "COUNT""\tIP""\tLOCATION"}; ip=$2{ if ($1 >= 1)  system("geoiplookup " ip);}' | #> ${OUTPUT_FILE}
+    while read COUNT IP
+    do 
+        if [[ "${COUNT}" -gt 5 ]];
+        then
+            LOCATION=$(geoiplookup ${IP} | awk -F ', ' '{print$2}')
+            echo "${COUNT},${IP},${LOCATION}" >> ${OUTPUT_FILE}
+        fi
+    done
     echo 'Scanning Completed'
 
 }
